@@ -14,16 +14,24 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
     super.initState();
 
     catController = AnimationController(
-      duration: Duration(seconds: 2),
+      // ignore: prefer_const_constructors
+      duration: Duration(milliseconds: 200),
       vsync: this,
     );
-    catAnimation = Tween(begin: 0.0, end: 100.0).animate(
+    catAnimation = Tween(begin: -30.0, end: -80.0).animate(
       CurvedAnimation(
         parent: catController,
         curve: Curves.easeIn,
       ),
     );
-    catController.forward();
+  }
+
+  onTap() {
+    if (catController.status == AnimationStatus.completed) {
+      catController.reverse();
+    } else if (catController.status == AnimationStatus.dismissed) {
+      catController.forward();
+    }
   }
 
   Widget build(BuildContext context) {
@@ -31,20 +39,50 @@ class HomeState extends State<Home> with TickerProviderStateMixin {
       appBar: AppBar(
         title: Text('Animation!'),
       ),
-      body: buildAnimation(),
+      body: GestureDetector(
+        child: Center(
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              buildCatAnimation(),
+              buildBox(),
+              buildFlip(),
+            ],
+          ),
+        ),
+        onTap: onTap,
+      ),
     );
   }
 
-  Widget buildAnimation() {
+  Widget buildCatAnimation() {
     return AnimatedBuilder(
       animation: catAnimation,
       builder: (context, child) {
-        return Container(
-          child: child,
-          margin: EdgeInsets.only(top: catAnimation.value),
+        return Positioned(
+          top: catAnimation.value,
+          child: child!,
+          right: 0.0,
+          left: 0.0,
         );
       },
       child: Cat(),
+    );
+  }
+
+  Widget buildBox() {
+    return Container(
+      height: 200.0,
+      width: 200.0,
+      color: Colors.blue[600],
+    );
+  }
+
+  Widget buildFlip() {
+    return Container(
+      height: 10.0,
+      width: 125.0,
+      color: Color.fromARGB(255, 0, 2, 93),
     );
   }
 }
